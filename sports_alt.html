@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    
+     <!-- Compiled and minified CSS -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <style>
+       #container {
+           display: grid;
+           grid-template-columns: 50%;
+           justify-content: center;
+       } 
+       .content {
+           /*justify-self: center;*/
+       }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <div class="content">
+            <h1>NexFix</h1>
+            <ul id="listSports" class="collapsible" data-collapsible="accordion"></ul>
+        </div>
+    </div>
+    
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+    
+    // LIST OF SPORTS URL 
+    const api_url_sports = 'https://www.thesportsdb.com/api/v1/json/1/all_sports.php';
+
+    // LIST OF LEAGUES URL
+    const api_url_leagues = 'https://www.thesportsdb.com/api/v1/json/1/all_leagues.php';
+
+    // LIST OF TEAMS IN PREMIER LEAGUE
+    const api_url_teams = 'https://www.thesportsdb.com/api/v1/json/1/lookup_all_teams.php?id=4328';
+
+    // GET SPORTS
+    async function getSports() {
+        const response = await fetch(api_url_sports);
+        const data = await response.json();
+        const listSports = document.getElementById('listSports');
+        data.sports.forEach(sport => {
+            let item = document.createElement('li');
+            item.innerHTML = `
+                <div class="collapsible-header">${sport.strSport}</div>
+                <div class="collapsible-body"><ul id="${sport.strSport}" class="collapsible" data-collapsible="accordion"></ul></div>
+                `;
+            listSports.append(item); 
+        });
+    }
+
+    // GET LEAGUES
+    async function getLeagues() {
+        const response = await fetch(api_url_leagues);
+        const data = await response.json();
+        data.leagues.forEach(league => {
+            let sportSel = document.querySelector(`#${league.strSport.split(" ").join("")}`);
+            let item = document.createElement('li');
+            item.innerHTML = `
+                <div class="collapsible-header">${league.strLeague}</div>
+                <div class="collapsible-body"><ul id="${league.idLeague}" class="collapsible" data-collapsible="accordion"></ul></div>
+                `;
+            item.classList.add(league.strLeague.split(" ").join(""));
+            sportSel.append(item);
+        })
+    }
+
+    // GET TEAMS
+    async function getTeams() {
+        const response = await fetch(api_url_teams);
+        const data = await response.json();
+        data.teams.forEach(team => {
+            let leagueSel = document.getElementById(team.idLeague);
+            let item = document.createElement('li');
+            item.textContent = team.strTeam;
+            item.innerHTML = `
+                <div class="collapsible-header">${team.strTeam}</div>
+                `;
+            item.id = team.idTeam;
+            item.classList.add(team.strLeague.split(" ").join(""));
+            leagueSel.append(item);
+        })
+    }
+    
+    getSports();
+    getLeagues();
+    getTeams();
+
+    // IZZY - INITIALISE THE COLLAPSIBLE ON PAGE LOAD, AND WHEN MOUSE IS CLICKED - OTHERWISE NESTED COLLAPSIBLE WON'T EXPAND
+    ['click','DOMContentLoaded'].forEach( function(evt) {
+        document.addEventListener(evt, function() {
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems);
+        }, false);
+    });
+
+    /*document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.collapsible');
+        var instances = M.Collapsible.init(elems);
+    });*/
+    
+    </script>
+    
+    
+    
+</body>
+</html>
